@@ -9,8 +9,8 @@ pool:
 
 variables:
   azureSubscription: 'app'
-  devAppName: 'react-dev-aflal'
-  preprodAppName: 'react-preprod-aflal'
+  devAppName: 'reactdevaflal'
+  preprodAppName: 'reactpreaflal'
   prodAppName: 'reactaflal'
 
 stages:
