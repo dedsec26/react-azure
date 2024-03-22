@@ -45,6 +45,8 @@ stages:
       - job: Deploy_DEV
         displayName: 'Deploy to DEV'
         steps:
+          - download: current
+            artifact: 'drop'
           - task: AzureWebApp@1
             inputs:
               azureSubscription: $(azureSubscription)
@@ -60,6 +62,8 @@ stages:
       - job: Deploy_PREPROD
         displayName: 'Deploy to PREPROD'
         steps:
+          - download: current
+            artifact: 'drop'
           - task: AzureWebApp@1
             inputs:
               azureSubscription: $(azureSubscription)
@@ -75,6 +79,8 @@ stages:
       - job: Deploy_PROD
         displayName: 'Deploy to PROD'
         steps:
+          - download: current
+            artifact: 'drop'
           - task: AzureWebApp@1
             inputs:
               azureSubscription: $(azureSubscription)
