@@ -30,17 +30,14 @@ stages:
             displayName: 'Build React App'
             continueOnError: true  # Continue on error to run tests even if build fails
           
-          - task: ShellScript@2
-            displayName: 'Echo variable group'
-            inputs:
-              targetType: 'inline'
-              script: |
-                #!/bin/bash
-      
-                echo "azureSubscription: $(azureSubscription)"
-                echo "devAppName: $(devAppName)"
-                echo "preprodAppName: $(preprodAppName)"
-                echo "prodAppName: $(prodAppName)"
+          - script: echo  $(azureSubscription)
+            displayName: 'azureSubscription'
+          - script: echo $(devAppName)
+            displayName: 'devAppName'
+          - script: echo $(preprodAppName)
+            displayName: 'preprodAppName'
+          - script: echo $(prodAppName)
+            displayName: 'prodAppName'
           - task: PublishBuildArtifacts@1
             inputs:
               pathtoPublish: '$(System.DefaultWorkingDirectory)/build'
