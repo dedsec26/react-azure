@@ -29,6 +29,11 @@ stages:
           - script: npm run build
             displayName: 'Build React App'
             continueOnError: true  # Continue on error to run tests even if build fails
+          
+          - task: PublishBuildArtifacts@1
+            inputs:
+              pathtoPublish: '$(System.DefaultWorkingDirectory)/build'
+              artifactName: 'drop'
 
   - stage: Deploy_DEV
     displayName: 'Deploy to Development'
@@ -38,9 +43,11 @@ stages:
       - job: Deploy
         displayName: 'Deploy'
         steps:
+          - download: current
+            artifact: 'drop'
           - task: AzureWebApp@1
             inputs:
               azureSubscription: $(azureSubscription)
               appName: $(appName)
-              package: '$(System.DefaultWorkingDirectory)/build'
+              package: '$(Pipeline.Workspace)/drop'
               appType: webApp
