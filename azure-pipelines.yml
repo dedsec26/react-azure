@@ -9,7 +9,9 @@ pool:
 
 variables:
   azureSubscription: 'app'
-  appName: 'reactaflal'
+  devAppName: 'react-dev-aflal'
+  preprodAppName: 'react-preprod-aflal'
+  prodAppName: 'reactaflal'
 
 stages:
   - stage: Build
@@ -40,14 +42,42 @@ stages:
     dependsOn: Build
     condition: succeeded()
     jobs:
-      - job: Deploy
-        displayName: 'Deploy'
+      - job: Deploy_DEV
+        displayName: 'Deploy to DEV'
         steps:
-          - download: current
-            artifact: 'drop'
           - task: AzureWebApp@1
             inputs:
               azureSubscription: $(azureSubscription)
-              appName: $(appName)
+              appName: $(devAppName)
+              package: '$(Pipeline.Workspace)/drop'
+              appType: webApp
+
+  - stage: Deploy_PREPROD
+    displayName: 'Deploy to Pre-Production'
+    dependsOn: Build
+    condition: succeeded()
+    jobs:
+      - job: Deploy_PREPROD
+        displayName: 'Deploy to PREPROD'
+        steps:
+          - task: AzureWebApp@1
+            inputs:
+              azureSubscription: $(azureSubscription)
+              appName: $(preprodAppName)
+              package: '$(Pipeline.Workspace)/drop'
+              appType: webApp
+
+  - stage: Deploy_PROD
+    displayName: 'Deploy to Production'
+    dependsOn: Build
+    condition: succeeded()
+    jobs:
+      - job: Deploy_PROD
+        displayName: 'Deploy to PROD'
+        steps:
+          - task: AzureWebApp@1
+            inputs:
+              azureSubscription: $(azureSubscription)
+              appName: $(prodAppName)
               package: '$(Pipeline.Workspace)/drop'
               appType: webApp
