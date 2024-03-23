@@ -115,6 +115,6 @@ stages:
               runOptions: 'inline'
               inline: |
                 docker login --username "aftocr" --password "2hJ&@W!.Jh2NC2p"
-                docker pull aftocr/reactaflal:$(Build.BuildNumber)
+                docker pull aftocr/reactaflal:latest
                 docker run -d -p 8080:80 --name reactaflal docker.io/$(Build.BuildNumber)
               readyTimeout: '20000'
