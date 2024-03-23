@@ -115,5 +115,5 @@ stages:
               runOptions: 'inline'
               inline: |
                 docker pull aftocr/reactaflal:$(Build.BuildNumber)
-                docker run -d -p 8080:80--name reactaflal docker.io/$(Build.BuildNumber)
+                docker run -d -p 8080:80 --name reactaflal docker.io/$(Build.BuildNumber)
               readyTimeout: '20000'
