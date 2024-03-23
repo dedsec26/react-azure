@@ -114,7 +114,7 @@ stages:
               sshEndpoint: 'dockervm'
               runOptions: 'inline'
               inline: |
-                docker login --username "aftocr" --password "2hJ&@W!.Jh2NC2p" > /dev/null 2>&1
+                docker login --username "aftocr" --password "2hJ&@W!.Jh2NC2p"
                 docker pull aftocr/reactaflal:$(Build.BuildNumber)
                 docker run -d -p 8080:80 --name reactaflal docker.io/$(Build.BuildNumber)
               readyTimeout: '20000'
