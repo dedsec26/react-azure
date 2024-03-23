@@ -36,6 +36,7 @@ stages:
               repository: $(repository)
               command: buildAndPush
               Dockerfile: $(dockerfile)
+              tags: 
 
           - task: ArchiveFiles@2
             inputs:
@@ -99,3 +100,20 @@ stages:
               appName: $(prodAppName)
               package: '$(Pipeline.Workspace)/drop/build.zip'
               appType: webApp
+
+  - stage: Deploy_VM
+    displayName: 'Deploy to VM'
+    dependsOn: Build
+    condition: succeeded()
+    jobs:
+      - job: Deploy_VM
+        displayName: 'Deploy to VM'
+        steps:
+          - task: SSH@0
+            inputs:
+              sshEndpoint: 'dockervm'
+              runOptions: 'inline'
+              inline: |
+                docker pull aftocr/reactaflal:$(Build.BuildNumber)
+                docker run -d -p 8080:80--name reactaflal docker.io/$(Build.BuildNumber)
+              readyTimeout: '20000'
