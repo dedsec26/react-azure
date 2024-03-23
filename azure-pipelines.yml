@@ -114,6 +114,7 @@ stages:
               sshEndpoint: 'dockervm'
               runOptions: 'inline'
               inline: |
+                docker rm -f reactaflal || true
                 docker pull aftocr/reactaflal:latest
                 docker run -d -p 8080:80 --name reactaflal aftocr/reactaflal:latest
               readyTimeout: '20000'
