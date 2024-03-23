@@ -10,7 +10,6 @@ pool:
 variables:
 - group: reactGroup
 
-
 stages:
   - stage: Build
     displayName: 'Build and Test'
@@ -30,14 +29,14 @@ stages:
             displayName: 'Build React App'
             continueOnError: true  # Continue on error to run tests even if build fails
           
-          - script: echo  $(azureSubscription)
-            displayName: 'azureSubscription'
-          - script: echo $(devAppName)
-            displayName: 'devAppName'
-          - script: echo $(preprodAppName)
-            displayName: 'preprodAppName'
-          - script: echo $(prodAppName)
-            displayName: 'prodAppName'
+          - task: Docker@2
+            displayName: 'Build Docker Image'
+            inputs:
+              containerRegistry: $(containerRegistry)
+              repository: $(repository)
+              command: buildAndPush
+              Dockerfile: $(dockerfile)
+
           - task: ArchiveFiles@2
             inputs:
               rootFolderOrFile: '$(System.DefaultWorkingDirectory)/build'
@@ -66,7 +65,6 @@ stages:
               appName: $(devAppName)
               package: '$(Pipeline.Workspace)/drop/build.zip'
               appType: webApp
-            
 
   - stage: Deploy_PREPROD
     displayName: 'Deploy to Pre-Production'
