@@ -38,6 +38,13 @@ stages:
             displayName: 'preprodAppName'
           - script: echo $(prodAppName)
             displayName: 'prodAppName'
+          - task: ArchiveFiles@2
+            inputs:
+              rootFolderOrFile: '$(System.DefaultWorkingDirectory)/build'
+              includeRootFolder: false
+              archiveType: 'zip'
+              archiveFile: '$(Build.ArtifactStagingDirectory)/build.zip'
+              replaceExistingArchive: true
           - task: PublishBuildArtifacts@1
             inputs:
               pathtoPublish: '$(System.DefaultWorkingDirectory)/build'
@@ -57,7 +64,7 @@ stages:
             inputs:
               azureSubscription: $(azureSubscription)
               appName: $(devAppName)
-              package: '$(Pipeline.Workspace)/drop'
+              package: '$(Pipeline.Workspace)/drop/build.zip'
               appType: webApp
             
 
@@ -75,7 +82,7 @@ stages:
             inputs:
               azureSubscription: $(azureSubscription)
               appName: $(preprodAppName)
-              package: '$(Pipeline.Workspace)/drop'
+              package: '$(Pipeline.Workspace)/drop/build.zip'
               appType: webApp
 
   - stage: Deploy_PROD
@@ -92,5 +99,5 @@ stages:
             inputs:
               azureSubscription: $(azureSubscription)
               appName: $(prodAppName)
-              package: '$(Pipeline.Workspace)/drop'
+              package: '$(Pipeline.Workspace)/drop/build.zip'
               appType: webApp
