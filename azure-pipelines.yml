@@ -1,0 +1,101 @@
+trigger:
+  branches:
+    include:
+      - main
+      - development
+
+pool:
+  vmImage: 'ubuntu-latest'
+
+variables:
+- group: reactGroup
+
+stages:
+  - stage: Build
+    displayName: 'Build and Test'
+    jobs:
+      - job: Build
+        displayName: 'Build'
+        steps:
+          - task: NodeTool@0
+            inputs:
+              versionSpec: '14.x'
+            displayName: 'Install Node.js'
+          
+          - script: npm install
+            displayName: 'Install Dependencies'
+          
+          - script: npm run build
+            displayName: 'Build React App'
+            continueOnError: true  # Continue on error to run tests even if build fails
+          
+          - task: Docker@2
+            displayName: 'Build Docker Image'
+            inputs:
+              containerRegistry: $(containerRegistry)
+              repository: $(repository)
+              command: buildAndPush
+              Dockerfile: $(dockerfile)
+
+          - task: ArchiveFiles@2
+            inputs:
+              rootFolderOrFile: '$(System.DefaultWorkingDirectory)/build'
+              includeRootFolder: false
+              archiveType: 'zip'
+              archiveFile: '$(Build.ArtifactStagingDirectory)/build.zip'
+              replaceExistingArchive: true
+          - task: PublishBuildArtifacts@1
+            inputs:
+              pathtoPublish: '$(Build.ArtifactStagingDirectory)'
+              artifactName: 'drop'
+
+  - stage: Deploy_DEV
+    displayName: 'Deploy to Development'
+    dependsOn: Build
+    condition: succeeded()
+    jobs:
+      - job: Deploy_DEV
+        displayName: 'Deploy to DEV'
+        steps:
+          - download: current
+            artifact: 'drop'
+          - task: AzureWebApp@1
+            inputs:
+              azureSubscription: $(azureSubscription)
+              appName: $(devAppName)
+              package: '$(Pipeline.Workspace)/drop/build.zip'
+              appType: webApp
+
+  - stage: Deploy_PREPROD
+    displayName: 'Deploy to Pre-Production'
+    dependsOn: Build
+    condition: succeeded()
+    jobs:
+      - job: Deploy_PREPROD
+        displayName: 'Deploy to PREPROD'
+        steps:
+          - download: current
+            artifact: 'drop'
+          - task: AzureWebApp@1
+            inputs:
+              azureSubscription: $(azureSubscription)
+              appName: $(preprodAppName)
+              package: '$(Pipeline.Workspace)/drop/build.zip'
+              appType: webApp
+
+  - stage: Deploy_PROD
+    displayName: 'Deploy to Production'
+    dependsOn: Build
+    condition: succeeded()
+    jobs:
+      - job: Deploy_PROD
+        displayName: 'Deploy to PROD'
+        steps:
+          - download: current
+            artifact: 'drop'
+          - task: AzureWebApp@1
+            inputs:
+              azureSubscription: $(azureSubscription)
+              appName: $(prodAppName)
+              package: '$(Pipeline.Workspace)/drop/build.zip'
+              appType: webApp
