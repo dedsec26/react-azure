@@ -47,7 +47,7 @@ stages:
               replaceExistingArchive: true
           - task: PublishBuildArtifacts@1
             inputs:
-              pathtoPublish: '$(System.DefaultWorkingDirectory)/build'
+              pathtoPublish: '$(Build.ArtifactStagingDirectory)'
               artifactName: 'drop'
 
   - stage: Deploy_DEV
