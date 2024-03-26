@@ -5,32 +5,32 @@ trigger:
       - development
 
 pool:
-  vmImage: 'ubuntu-latest'
+  name: "vm"
 
 variables:
-- group: reactGroup
+  - group: reactGroup
 
 stages:
   - stage: Build
-    displayName: 'Build and Test'
+    displayName: "Build and Test"
     jobs:
       - job: Build
-        displayName: 'Build'
+        displayName: "Build"
         steps:
           - task: NodeTool@0
             inputs:
-              versionSpec: '14.x'
-            displayName: 'Install Node.js'
-          
+              versionSpec: "14.x"
+            displayName: "Install Node.js"
+
           - script: npm install
-            displayName: 'Install Dependencies'
-          
+            displayName: "Install Dependencies"
+
           - script: npm run build
-            displayName: 'Build React App'
-            continueOnError: true  # Continue on error to run tests even if build fails
-          
+            displayName: "Build React App"
+            continueOnError: true # Continue on error to run tests even if build fails
+
           - task: Docker@2
-            displayName: 'Build Docker Image'
+            displayName: "Build Docker Image"
             inputs:
               containerRegistry: $(containerRegistry)
               repository: $(repository)
@@ -39,63 +39,63 @@ stages:
 
           - task: ArchiveFiles@2
             inputs:
-              rootFolderOrFile: '$(System.DefaultWorkingDirectory)/build'
+              rootFolderOrFile: "$(System.DefaultWorkingDirectory)/build"
               includeRootFolder: false
-              archiveType: 'zip'
-              archiveFile: '$(Build.ArtifactStagingDirectory)/build.zip'
+              archiveType: "zip"
+              archiveFile: "$(Build.ArtifactStagingDirectory)/build.zip"
               replaceExistingArchive: true
           - task: PublishBuildArtifacts@1
             inputs:
-              pathtoPublish: '$(Build.ArtifactStagingDirectory)'
-              artifactName: 'drop'
+              pathtoPublish: "$(Build.ArtifactStagingDirectory)"
+              artifactName: "drop"
 
   - stage: Deploy_DEV
-    displayName: 'Deploy to Development'
+    displayName: "Deploy to Development"
     dependsOn: Build
     condition: succeeded()
     jobs:
       - job: Deploy_DEV
-        displayName: 'Deploy to DEV'
+        displayName: "Deploy to DEV"
         steps:
           - download: current
-            artifact: 'drop'
+            artifact: "drop"
           - task: AzureWebApp@1
             inputs:
               azureSubscription: $(azureSubscription)
               appName: $(devAppName)
-              package: '$(Pipeline.Workspace)/drop/build.zip'
+              package: "$(Pipeline.Workspace)/drop/build.zip"
               appType: webApp
 
   - stage: Deploy_PREPROD
-    displayName: 'Deploy to Pre-Production'
+    displayName: "Deploy to Pre-Production"
     dependsOn: Build
     condition: succeeded()
     jobs:
       - job: Deploy_PREPROD
-        displayName: 'Deploy to PREPROD'
+        displayName: "Deploy to PREPROD"
         steps:
           - download: current
-            artifact: 'drop'
+            artifact: "drop"
           - task: AzureWebApp@1
             inputs:
               azureSubscription: $(azureSubscription)
               appName: $(preprodAppName)
-              package: '$(Pipeline.Workspace)/drop/build.zip'
+              package: "$(Pipeline.Workspace)/drop/build.zip"
               appType: webApp
 
   - stage: Deploy_PROD
-    displayName: 'Deploy to Production'
+    displayName: "Deploy to Production"
     dependsOn: Build
     condition: succeeded()
     jobs:
       - job: Deploy_PROD
-        displayName: 'Deploy to PROD'
+        displayName: "Deploy to PROD"
         steps:
           - download: current
-            artifact: 'drop'
+            artifact: "drop"
           - task: AzureWebApp@1
             inputs:
               azureSubscription: $(azureSubscription)
               appName: $(prodAppName)
-              package: '$(Pipeline.Workspace)/drop/build.zip'
+              package: "$(Pipeline.Workspace)/drop/build.zip"
               appType: webApp
