@@ -1,6 +1,5 @@
 FROM node:18 as build
 WORKDIR /
-RUN npm install -g @angular/cli
 COPY package.json ./
 RUN npm install
 COPY . .
